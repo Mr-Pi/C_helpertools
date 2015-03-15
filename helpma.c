@@ -34,22 +34,33 @@ static inline void displayVersion();
 
 int main(const int argc, const char* argv[]) {
 	parameter params[4]={
-		{.option="-1", .desc="test1", .required=true},
-		{.option="-2", .desc="test2"},
-		{.option="-3", .desc="test3"},
-		{.option="-4", .desc="test4"}
+		{.argc=0, .set=false, .option="-1", .desc="test1", .required=true},
+		{.argc=3, .set=false, .option="-2", .desc="test2"},
+		{.argc=-1, .set=false, .option="-3", .desc="test3"},
+		{.argc=0, .set=false, .option="-4", .desc="test4"}
 	};
 	displayHelpMessage(params, ARRAY_SIZE(params));
 	parsParams(argc,argv,params,ARRAY_SIZE(params));
+	if(params[0].set==true)
+		printf("\n-1 ist set\n");
 }
 
 static void parsParams(const int argc, const char *argv[], parameter params[], const int numberOfOptions) {
 	for(int i=0; i<argc; i++) {
 		for(int ii=0; ii<numberOfOptions; ii++) {
-			if(strcmp(argv[i], params[ii].option)==0)
-				printf("%s\n", argv[i]);
-			else
-				printf(".");
+			if(strcmp(argv[i], params[ii].option)==0) {
+				params[ii].set=true;
+				if(params[ii].argc<0)
+					for(params[ii].*argc=0; argv[i+1][0]!='-'; params[ii].*argc++, i++)
+						printf("%c",argv[i+1][0]);
+				printf("\n:%d\n", params[ii].argc);
+			}
+		}
+	}
+	for(int i=0; i<numberOfOptions; i++) {
+		if(params[i].required==true && params[i].set!=true) {
+			fprintf(stderr, "\n\nERROR: Argument '%s' is required, but not provided\n", params[i].option);
+			exit(2);
 		}
 	}
 	
